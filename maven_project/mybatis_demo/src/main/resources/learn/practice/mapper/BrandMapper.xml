@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace:名称空间-->
+<mapper namespace="learn.practice.mapper.BrandMapper">
+
+    <sql id="brand_column">
+        id, brand_name as brandName, company_name as companyName, ordered, description, status
+    </sql>
+
+    <!--    <select id="selectAll" resultType="learn.practice.pojo.Brand">-->
+<!--        select-->
+<!--            <include refid="brand_column"></include>-->
+<!--        from tb_brand;-->
+<!--    </select>-->
+
+    <!--
+    id：唯一标识
+    type：映射的类型，支持别名
+    -->
+    <resultMap id="brandResultMap" type="brand">
+<!--        column: 列名，property: 要映射的名字
+            id: 完成主键字段的映射
+            result： 完成一般字段的映射
+-->
+        <result column="brand_name" property="brandName"></result>
+        <result column="company_name" property="companyName"></result>
+    </resultMap>
+    <select id="selectAll" resultMap="brandResultMap">
+        select
+        *
+        from tb_brand;
+    </select>
+    <select id="selectById" resultMap="brandResultMap">
+        select *
+        from tb_brand
+        where id = #{id};
+    </select>
+
+<!--    <select id="selectByCondition" resultMap="brandResultMap">-->
+<!--        select *-->
+<!--        from tb_brand-->
+<!--        where status = #{status}-->
+<!--        and company_name like #{companyName}-->
+<!--        and brand_name like #{brandName};-->
+<!--    </select>-->
+
+
+<!--    动态条件查询-->
+    <select id="selectByCondition" resultMap="brandResultMap">
+        select *
+        from tb_brand
+        <where>
+        <if test="status != null">
+            status = #{status}
+        </if>
+
+        <if test="companyName != null and companyName != ''">
+            and company_name like #{companyName}
+        </if>
+        <if test="brandName != null and brandName != ''">
+            and brand_name like #{brandName}
+        </if>
+        </where>
+    </select>
+    <select id="selectByConditionSingle" resultMap="brandResultMap">
+        select *
+        from tb_brand
+        <where>
+            <choose>
+                <when test="status != null">
+                    status = #{status}
+                </when>
+                <when test="companyName != null and companyName != ''">
+                    company_name like #{companyName}
+                </when>
+                <when test="brandName != null and brandName != ''">
+                    brand_name like #{brandName}
+                </when>
+
+            </choose>
+        </where>
+    </select>
+
+    <insert id="add" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_brand
+        (brand_name, company_name, ordered, description, status)
+        values
+        (#{brandName}, #{companyName}, #{ordered}, #{description}, #{status});
+    </insert>
+
+
+    <update id="update">
+        update tb_brand
+        set
+            brand_name = #{brandName},
+            company_name = #{companyName},
+            ordered = #{ordered},
+            description = #{description},
+            status = #{status}
+        where id = #{id};
+    </update>
+
+
+    <delete id="deleteById">
+
+    </delete>
+
+
+    <delete id="deleteByIds">
+        delete from tb_brand
+        where id in (
+        <foreach collection="ids" item="id" separator=",">
+            #{id}
+        </foreach>
+        )
+    </delete>
+
+
+</mapper>
